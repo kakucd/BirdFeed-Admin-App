@@ -11,6 +11,12 @@ import android.view.MenuItem;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -18,7 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,9 +43,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
+                    updateData();
             }
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     @Override
@@ -107,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+
+
     }
 
     public Tweet readTweet(JsonReader reader) throws IOException {
@@ -154,4 +167,22 @@ public class MainActivity extends AppCompatActivity {
             tweet = t;
         }
     }
+
+    private void updateData() {
+        String item = "Beecher's Homemade Cheese";
+        FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
+        final DatabaseReference ref = mdatabase.getReference("restaurants/"+item+"/score");
+        ref.child("score").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ref.setValue(5);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 }
