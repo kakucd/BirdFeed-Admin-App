@@ -38,11 +38,6 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                try {
-                    loadJSONFromAsset();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
         });
     }
@@ -69,26 +64,25 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void push() {
-
+    public void push(View view) {
+        try {
+            loadJSONFromAsset();
+            System.out.println("loadJSONFromAsset");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadJSONFromAsset() throws JSONException {
         InputStream is = null;
         try {
-
             is = getAssets().open("restaurant.json");
-            //int size = is.available();
-            //byte[] buffer = new byte[size];
-            //is.read(buffer);
-            //is.close();
-
+            System.out.println("inputstream");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
         System.out.println("json String initialized");
-        //JSONObject obj = new JSONObject(json);
         JsonReader reader = null;
         try {
             reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
@@ -106,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println(reader.peek());
                 data.add(readTweet(reader));
             }
-            //reader.endObject();
         } catch (IOException e) {
             for(int i = 0; i < data.size(); i++) {
                 System.out.println("data: "+data.get(i));
