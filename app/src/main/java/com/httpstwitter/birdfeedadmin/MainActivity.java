@@ -166,23 +166,38 @@ public class MainActivity extends AppCompatActivity {
             user = u;
             tweet = t;
         }
+
+        public String getTweet() {
+            return tweet;
+        }
+
+        public String getUser() {
+            return user;
+        }
     }
 
     private void updateData() {
         String item = "Beecher's Homemade Cheese";
         FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
-        final DatabaseReference ref = mdatabase.getReference("restaurants/"+item+"/score");
-        ref.child("score").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                ref.setValue(5);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+        for(int i = data.size()-2; i < data.size(); i++) {
+            Tweet t = data.get(i);
+            final String text = t.getTweet();
+            final String user = t.getUser();
 
-            }
-        });
+            final DatabaseReference ref = mdatabase.getReference("tweets/"+item+"/"+user);
+            ref.child(user).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    ref.setValue(text);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
 }
