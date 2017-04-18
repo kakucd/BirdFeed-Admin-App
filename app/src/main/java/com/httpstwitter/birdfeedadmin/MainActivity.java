@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             reader.nextName();
             reader.beginArray();
             while (reader.hasNext() && reader.peek() != JsonToken.END_DOCUMENT) {
-                System.out.println(reader.peek());
+                //System.out.println(reader.peek());
                 data.add(readTweet(reader));
             }
         } catch (IOException e) {
@@ -114,13 +114,13 @@ public class MainActivity extends AppCompatActivity {
         String user = null;
 
         reader.beginObject();
-        reader.nextName();
+        //reader.nextName();
 
         while (reader.hasNext()) {
-            String name, temp;
+            String name;
             try {
-                name = reader.nextString();
-                System.out.println("Name: "+name);
+                name = reader.nextName();
+                //System.out.println("Name: "+ name);
             } catch(Exception e) {
                 System.out.println("Exception caught: "+e.toString());
                 break;
@@ -133,9 +133,9 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("Text: " + text);
             } else {
                 reader.skipValue();
-                //reader.endObject();
             }
         }
+        reader.endObject();
 
         return new Tweet(user, text);
     }
