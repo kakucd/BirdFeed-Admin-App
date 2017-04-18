@@ -113,8 +113,11 @@ public class MainActivity extends AppCompatActivity {
         String text = null;
         String user = null;
 
+        reader.beginObject();
+        reader.nextName();
+
         while (reader.hasNext()) {
-            String name;
+            String name, temp;
             try {
                 name = reader.nextString();
                 System.out.println("Name: "+name);
@@ -130,9 +133,10 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("Text: " + text);
             } else {
                 reader.skipValue();
-                reader.endObject();
+                //reader.endObject();
             }
         }
+
         return new Tweet(user, text);
     }
 
