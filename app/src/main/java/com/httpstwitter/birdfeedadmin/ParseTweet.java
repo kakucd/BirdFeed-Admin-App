@@ -36,7 +36,7 @@ public class ParseTweet {
             System.out.println("Temp: "+temp);
 
             FirebaseDatabase db = FirebaseDatabase.getInstance();
-            DatabaseReference ref = db.getReference();
+            DatabaseReference ref = db.getReference("handle/"+temp);
 
             final String finalTemp = temp;
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
