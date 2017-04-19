@@ -24,7 +24,7 @@ public class ParseTweet {
     }
 
     public ParseTweet(String t) {
-        tweet = t;
+        tweet = "@cdouvos @MadronaVentures @BeechersSeattle I get beechers every time I am near pikes place or just at the airport";
     }
 
     public String findHandle() {
@@ -33,10 +33,10 @@ public class ParseTweet {
 
         while(text.hasNext()) {
             temp = text.next();
-            System.out.println("Temp: "+temp);
+            //System.out.println("Temp: "+temp);
 
             FirebaseDatabase db = FirebaseDatabase.getInstance();
-            DatabaseReference ref = db.getReference("handle/"+temp);
+            DatabaseReference ref = db.getReference("handle/");
 
             final String finalTemp = temp;
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -44,6 +44,10 @@ public class ParseTweet {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if (dataSnapshot.hasChild(finalTemp)) {
                         handle = finalTemp;
+                        //System.out.println("If: "+finalTemp);
+                        findName(handle);
+                    } else {
+                        //System.out.println("Else: "+finalTemp);
                     }
                 }
 
@@ -54,6 +58,26 @@ public class ParseTweet {
             });
         }
 
-        return handle;
+        return this.name;
+    }
+
+    public String findName(String handle) {
+
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference ref = db.getReference("handle/"+handle);
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                name = (String) dataSnapshot.getValue();
+                System.out.println("name: "+name);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        return null;
     }
 }

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<Tweet> data = new ArrayList<>();
+    String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                     updateData();
+                Tweet t = data.get(12);
+                    ParseTweet ob = new ParseTweet(t.getTweet());
+                    name = ob.findHandle();
             }
         });
     }
@@ -51,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        System.out.println("Name!!: "+name);
     }
 
     @Override
@@ -82,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        ParseTweet ob = new ParseTweet();
     }
 
     public void loadJSONFromAsset() throws JSONException {
