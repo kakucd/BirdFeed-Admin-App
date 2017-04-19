@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        ParseTweet ob = new ParseTweet();
     }
 
     public void loadJSONFromAsset() throws JSONException {
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateData() {
-        String item = "Beecher's Homemade Cheese";
+        String item = "Test Push";
         FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
 
         for(int i = data.size()-2; i < data.size(); i++) {
