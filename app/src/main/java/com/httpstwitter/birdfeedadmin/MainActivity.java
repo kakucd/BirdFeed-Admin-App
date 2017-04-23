@@ -28,9 +28,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<Tweet> data = new ArrayList<>();
     ArrayList<Handle> handles = new ArrayList<>();
-    String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        //System.out.println("Name!!: "+name);
     }
 
     @Override
@@ -87,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             loadJSONFromAsset();
             flag = true;
-            //System.out.println("loadJSONFromAsset");
         } catch (JSONException e) {
             e.printStackTrace();
             flag = false;
@@ -106,17 +102,14 @@ public class MainActivity extends AppCompatActivity {
         InputStream is = null;
         try {
             is = getAssets().open("restaurant.json");
-            //System.out.println("inputstream");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
-        //System.out.println("json String initialized");
         JsonReader reader = null;
         try {
             reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            //System.out.println("Exception caught");
             e.printStackTrace();
         }
 
@@ -126,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
             reader.nextName();
             reader.beginArray();
             while (reader.hasNext() && reader.peek() != JsonToken.END_DOCUMENT) {
-                //System.out.println(reader.peek());
                 readTweet(reader);
             }
         } catch (IOException e) {
@@ -136,7 +128,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void readTweet(JsonReader reader) throws IOException {
         reader.beginObject();
-        //reader.nextName();
         String text = null;
         String user = null;
         String date = null;
@@ -144,50 +135,21 @@ public class MainActivity extends AppCompatActivity {
             String name;
             try {
                 name = reader.nextName();
-                //System.out.println("Name: "+ name);
             } catch(Exception e) {
-                //System.out.println("Exception caught: "+e.toString());
                 break;
             }
             if (name.equals("user")) {
                 user = reader.nextString();
-                //System.out.println("User: " + user);
             } else if (name.equals("text")) {
                 text = reader.nextString();
-                //System.out.println("Text: " + text);
             } else if (name.equals("createdAt")) {
                 date = reader.nextString();
             } else {
                 reader.skipValue();
             }
         }
-        //System.out.println("User: " + user);
-        //System.out.println("Text: " + text);
         reader.endObject();
         handles.add(new Handle(user, text, date));
-    }
-
-    public class Tweet {
-        String user;
-        String tweet;
-
-        public Tweet() {
-            user = null;
-            tweet = null;
-        }
-
-        public Tweet(String u, String t) {
-            user = u;
-            tweet = t;
-        }
-
-        public String getTweet() {
-            return tweet;
-        }
-
-        public String getUser() {
-            return user;
-        }
     }
 
     /*
