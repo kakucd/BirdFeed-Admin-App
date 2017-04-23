@@ -29,6 +29,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<Tweet> data = new ArrayList<>();
+    ArrayList<Handle> handles = new ArrayList<>();
     String name;
 
     @Override
@@ -44,10 +45,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                    updateData();
-                Tweet t = data.get(12);
-                    ParseTweet ob = new ParseTweet(t.getTweet());
-                    name = ob.findHandle();
             }
         });
     }
@@ -55,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        System.out.println("Name!!: "+name);
+        //System.out.println("Name!!: "+name);
     }
 
     @Override
@@ -80,30 +77,46 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void push(View view) {
+    /*
+     * Will run sentiment analysis on data that is stored in the designated JSON file.
+     * snackbar message should indicate either when sentiment is successfully competed or when the
+     * function has failed.
+     */
+    public void sentiment(View view) {
+        boolean flag;
         try {
             loadJSONFromAsset();
-            System.out.println("loadJSONFromAsset");
+            flag = true;
+            //System.out.println("loadJSONFromAsset");
         } catch (JSONException e) {
             e.printStackTrace();
+            flag = false;
         }
+
+        String message;
+        if(flag)
+           message = "data successfully read";
+        else
+            message = "data unsuccessfully read";
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 
     public void loadJSONFromAsset() throws JSONException {
         InputStream is = null;
         try {
             is = getAssets().open("restaurant.json");
-            System.out.println("inputstream");
+            //System.out.println("inputstream");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
-        System.out.println("json String initialized");
+        //System.out.println("json String initialized");
         JsonReader reader = null;
         try {
             reader = new JsonReader(new InputStreamReader(is, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            System.out.println("Exception caught");
+            //System.out.println("Exception caught");
             e.printStackTrace();
         }
 
@@ -114,48 +127,44 @@ public class MainActivity extends AppCompatActivity {
             reader.beginArray();
             while (reader.hasNext() && reader.peek() != JsonToken.END_DOCUMENT) {
                 //System.out.println(reader.peek());
-                data.add(readTweet(reader));
+                readTweet(reader);
             }
         } catch (IOException e) {
-            for(int i = 0; i < data.size(); i++) {
-                System.out.println("data: "+data.get(i));
-            }
             e.printStackTrace();
         }
-
-
-
     }
 
-    public Tweet readTweet(JsonReader reader) throws IOException {
-        String text = null;
-        String user = null;
-
+    public void readTweet(JsonReader reader) throws IOException {
         reader.beginObject();
         //reader.nextName();
-
+        String text = null;
+        String user = null;
+        String date = null;
         while (reader.hasNext()) {
             String name;
             try {
                 name = reader.nextName();
                 //System.out.println("Name: "+ name);
             } catch(Exception e) {
-                System.out.println("Exception caught: "+e.toString());
+                //System.out.println("Exception caught: "+e.toString());
                 break;
             }
             if (name.equals("user")) {
                 user = reader.nextString();
-                System.out.println("User: " + user);
+                //System.out.println("User: " + user);
             } else if (name.equals("text")) {
                 text = reader.nextString();
-                System.out.println("Text: " + text);
+                //System.out.println("Text: " + text);
+            } else if (name.equals("createdAt")) {
+                date = reader.nextString();
             } else {
                 reader.skipValue();
             }
         }
+        //System.out.println("User: " + user);
+        //System.out.println("Text: " + text);
         reader.endObject();
-
-        return new Tweet(user, text);
+        handles.add(new Handle(user, text, date));
     }
 
     public class Tweet {
@@ -181,17 +190,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void updateData() {
-        String item = "Test Push";
+    /*
+     * Method updated the database by pushing data that has been stream and analyzed for sentiment.
+     * This method updates both tweet information in the database and sentiment scores.
+     * snackbar message should indicate when function in successfully completed or when function
+     * has failed.
+     */
+    public void push(View view) {
+        for(int i = 0; i < handles.size(); i++) {
+            Handle h = handles.get(i);
+            if (h.getName() == null) {
+                handles.remove(i);
+                i--;
+            }
+        }
+
         FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
 
-        for(int i = data.size()-2; i < data.size(); i++) {
-            Tweet t = data.get(i);
+        for(int i = 0; i < handles.size(); i++) {
+            Handle t = handles.get(i);
             final String text = t.getTweet();
             final String user = t.getUser();
+            final String restaurant = t.getName();
+            final double score = t.getScore();
+            final String date = t.getDate();
 
-            final DatabaseReference ref = mdatabase.getReference("tweets/"+item+"/"+user);
-            ref.child(user).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            final DatabaseReference ref = mdatabase.getReference("tweets/" + restaurant + "/" + date);
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     ref.setValue(text);
@@ -203,6 +229,19 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        Snackbar.make(view, "Database Successfully Updated!", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 
+    /*
+     * Will stream data from Twitter when corresponding button is clicked.
+     * snackbar message should indicate when the streaming function has either failed or
+     * successfully completed.
+     */
+    public void stream(View view) {
+
+        Snackbar.make(view, "No Action Set", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
 }

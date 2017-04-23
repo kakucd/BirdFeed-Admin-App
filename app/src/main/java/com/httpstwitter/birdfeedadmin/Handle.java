@@ -1,5 +1,6 @@
 package com.httpstwitter.birdfeedadmin;
 
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -7,29 +8,33 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Scanner;
-
 /**
- * Created by Casey on 4/18/17.
+ * Created by Casey on 4/22/17.
  */
 
-public class ParseTweet {
-    String tweet;
-    String handle;
-    String name;
+public class Handle {
+    String tweet, name, handle, user, date;
+    double score;
 
-    public ParseTweet() {
-        tweet = "";
-        handle = "";
-        name = "";
+    public Handle() {
+        tweet = null;
+        name = null;
+        handle = null;
+        user = null;
+        date = null;
+        score = 0;
     }
 
-    public ParseTweet(String t) {
-        tweet = "@cdouvos @MadronaVentures @BeechersSeattle I get beechers every time I am near pikes place or just at the airport";
+    public Handle(String u, String t, String d) {
+        tweet = t;
+        user = EncodeString(u);
+        date = d;
+        name = parseTweet();
     }
 
-    public String findHandle() {
+    public String parseTweet() {
+        Scanner text = new Scanner(EncodeString(tweet));
         String temp;
-        Scanner text = new Scanner(tweet);
 
         while(text.hasNext()) {
             temp = text.next();
@@ -45,7 +50,7 @@ public class ParseTweet {
                     if (dataSnapshot.hasChild(finalTemp)) {
                         handle = finalTemp;
                         //System.out.println("If: "+finalTemp);
-                        findName(handle);
+                        name = getRestaurant(handle);
                     } else {
                         //System.out.println("Else: "+finalTemp);
                     }
@@ -57,12 +62,20 @@ public class ParseTweet {
                 }
             });
         }
-
+        System.out.println("this.name: "+this.name);
         return this.name;
     }
 
-    public String findName(String handle) {
+    public static String EncodeString(String string) {
+        string = string.replace("#", ",");
+        string = string.replace("$", ",");
+        string = string.replace(".", ",");
+        string = string.replace("[", ",");
+        string = string.replace("]", ",");
+        return string;
+    }
 
+    public String getRestaurant(String handle) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference ref = db.getReference("handle/"+handle);
 
@@ -70,14 +83,50 @@ public class ParseTweet {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 name = (String) dataSnapshot.getValue();
-                System.out.println("name: "+name);
+                //System.out.println("name: "+name);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                name = null;
             }
         });
-        return null;
+        return name;
+    }
+
+    public String getTweet() {
+        return tweet;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getHandle() {
+        return handle;
+    }
+
+    public void setScore(double s) {
+        score = s;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String u) {
+        user = u;
+    }
+
+    public void setTweet(String t) {
+        tweet = t;
+    }
+
+    public String getDate() {
+        return date;
     }
 }
