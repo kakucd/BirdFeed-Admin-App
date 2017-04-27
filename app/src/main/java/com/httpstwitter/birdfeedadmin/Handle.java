@@ -62,7 +62,6 @@ public class Handle {
                 }
             });
         }
-        System.out.println("this.name: "+this.name);
         return this.name;
     }
 
