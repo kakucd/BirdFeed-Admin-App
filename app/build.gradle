@@ -10,6 +10,13 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        jackOptions {
+            enabled true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     buildTypes {
         release {
@@ -29,6 +36,15 @@ dependencies {
     compile 'com.android.support:design:25.3.1'
     compile 'com.google.firebase:firebase-core:10.0.1'
     compile 'com.google.firebase:firebase-database:10.0.1'
+    compile 'com.sparkjava:spark-core:2.1'
+    compile 'org.twitter4j:twitter4j-core:4.0.1'
+    compile ('org.apache.spark:spark-core_2.10:1.6.1'){
+        exclude group: 'org.apache.httpcomponents', module: 'httpclient'
+    }
+    compile group: 'org.apache.spark', name: 'spark-streaming_2.10', version:'1.6.1'
+    compile group: 'org.apache.spark', name: 'spark-sql_2.10', version: '1.6.1'
+    compile 'org.twitter4j:twitter4j-core:4.0.2'
+    compile group: 'org.apache.spark', name: 'spark-streaming-twitter_2.10', version: '1.1.0'
     testCompile 'junit:junit:4.12'
 }
 

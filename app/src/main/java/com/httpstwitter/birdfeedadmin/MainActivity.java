@@ -11,19 +11,37 @@ import android.view.MenuItem;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.Files;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.serializer.KryoSerializer;
+import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.SQLContext;
+import org.apache.spark.streaming.Duration;
+import org.apache.spark.streaming.api.java.JavaDStream;
+import org.apache.spark.streaming.api.java.JavaStreamingContext;
+import org.apache.spark.streaming.twitter.TwitterUtils;
 import org.json.JSONException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+
+import twitter4j.auth.Authorization;
+import twitter4j.auth.AuthorizationFactory;
+import twitter4j.conf.Configuration;
+import twitter4j.conf.ConfigurationContext;
 
 
 public class MainActivity extends AppCompatActivity {
