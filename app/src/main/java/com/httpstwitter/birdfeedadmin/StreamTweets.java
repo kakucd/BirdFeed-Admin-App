@@ -48,23 +48,22 @@ public class StreamTweets {
 
         // output file, save streamed twitter data as a json file
         final File outputFile = new File("restaurant.json");
-//        if (outputFile.exists()) {
-//        }
 
         //create a DStream of tweets
         String[] filters = { "@mattsinthemkt", "@IvarsClam", "@pikeplchowder", "@BaccoCafeSea", "@RadiatorWhiskey",
-                                "@CuttersCrab", "@japonessa", "@PinkDoorSeattle", "@CrepedeFrance1", "@place_pigalle",
-                                "Kastoori Grill", "kastoori grill", "@canlis", "@MetGrill", "@thewalrusbar",
-                                "@dahlialounge", "@RN74Seattle", "@ElGauchoSteak", "@Spinasse", "@ILBistroSeattle",
-                                "@PalisadeSea", "@SaltySeattle", "@Andaluca", "@RockCreekSea", "@salareseattle",
-                                "@AOTTSeattle", "@AlturaSeattle", "@GoldfinchTavern", "@raysboathouse", "@SeriousPieDT",
-                                "@SeriousPiePike", "@ilcorvopasta", "@ElliottsSeattle", "@mamnoontoo", "@DelanceySeattle",
-                                "@WildGingerEats", "@TheCarlileRoom", "@NellsRestaurant", "@steelheaddiner", "@EatStoneburner",
-                                "@SandPointGrill1", "@LOWELLSBar", "@ChandlersCrab", "@Local360Seattle", "@curb_cuisine",
-                                "@DukesChowder", "@PiattiSeattle", "@petitcochonsea", "@brimmerheeltap", "@rione_xiii",
-                                "@BrunswickHunt", "@coastalkitchen", "@bramlingballard", "@13CoinsSeattle", "@blueacreseafood",
-                                "@CafeMunir", "@SeatownSeabar", "@oldstovebeer", "@pikebrewing", "@SeaCoffeeWorks",
-                                "@BeechersSeattle", "@CanonSeattle", "@TheVirginiaInn", "@biscuitbitch"};
+                "@CuttersCrab", "@japonessa", "@PinkDoorSeattle", "@CrepedeFrance1", "@place_pigalle",
+                "@canlis", "@MetGrill", "@thewalrusbar", "@thecrumpetshop_", "@PiroshkyBakery",
+                "@dahlialounge", "@RN74Seattle", "@ElGauchoSteak", "@Spinasse", "@ILBistroSeattle",
+                "@PalisadeSea", "@SaltySeattle", "@Andaluca", "@RockCreekSea", "@salareseattle",
+                "@AOTTSeattle", "@AlturaSeattle", "@GoldfinchTavern", "@raysboathouse", "@SeriousPieDT",
+                "@SeriousPiePike", "@ilcorvopasta", "@ElliottsSeattle", "@mamnoontoo", "@DelanceySeattle",
+                "@WildGingerEats", "@TheCarlileRoom", "@NellsRestaurant", "@steelheaddiner", "@EatStoneburner",
+                "@SandPointGrill1", "@LOWELLSBar", "@ChandlersCrab", "@Local360Seattle", "@curb_cuisine",
+                "@DukesChowder", "@PiattiSeattle", "@petitcochonsea", "@brimmerheeltap", "@rione_xiii",
+                "@BrunswickHunt", "@coastalkitchen", "@bramlingballard", "@13CoinsSeattle", "@blueacreseafood",
+                "@CafeMunir", "@SeatownSeabar", "@oldstovebeer", "@pikebrewing", "@SeaCoffeeWorks",
+                "@BeechersSeattle", "@CanonSeattle", "@TheVirginiaInn", "@biscuitbitch", "@NoBonesTruck",
+                "@LePanierBakery", "@Chanseattle"};
 
 
         //get twitter stream as a string with only english tweets and containing filters
@@ -74,19 +73,23 @@ public class StreamTweets {
                 .filter(t -> t.contains("\"language\":\"en\""));
 
 
+        Files.append("[ ", outputFile, Charset.defaultCharset());
+
         // save stream to json file
         stream.foreachRDD(tweets -> {
-                    tweets.collect().stream().forEach(t -> System.out.println(t));
-                    tweets.foreach(t -> {
-                            Files.append(t + "\n", outputFile, Charset.defaultCharset());
-                    });
-                    return null;
-                });
+            tweets.collect().stream().forEach(t -> System.out.println(t));
+            tweets.foreach(t -> {
+                Files.append(t + ",\n", outputFile, Charset.defaultCharset());
+            });
+            return null;
+        });
 
         sc.start();
-        sc.awaitTermination();
-//        sc.awaitTermination(500000);
+//        sc.awaitTermination();
+        sc.awaitTermination(500000);
         sc.stop();
+
+        Files.append("{} ]", outputFile, Charset.defaultCharset());
 
     }
 
