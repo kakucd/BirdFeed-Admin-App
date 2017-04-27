@@ -32,8 +32,13 @@ import java.util.HashMap;
 public class Sentiment {
 
     static HashMap<String, Integer> map = new HashMap<>();
+    double rate;
 
-    public static void main(String[] args) throws IOException {
+    public Sentiment(String str) throws IOException {
+        rate = scoring(str);
+    }
+
+    public double scoring(String str) throws IOException {
 
         SparkConf sparkConf = new SparkConf()
                 .setAppName("Tweets Android")
@@ -68,8 +73,8 @@ public class Sentiment {
         nb = new NaiveBayes(knowledgeBase);
 
 
-        try {
-            DataFrame tweets = sqlContext.read().json("restaurant.json"); // load old tweets into a DataFrame
+        //try {
+           /* DataFrame tweets = sqlContext.read().json("restaurant.json"); // load old tweets into a DataFrame
             tweets.registerTempTable("tweetDF");
 
             DataFrame tweetText = sqlContext.sql("SELECT text FROM tweetDF");
@@ -83,14 +88,19 @@ public class Sentiment {
                 tweet = tweet.substring(1, tweet.length() - 1);
                 System.out.println(tweet);
 
-                Double sent = nb.predict(tweet);
+                Double sent = nb.predict(str);
 
                 System.out.println("Sentiment Prediction: " + sent);
+                return sent;
             }
 
         } catch (Exception e){
             System.out.println(e);
-        }
+        }*/
+        Double sent = nb.predict(str);
+
+        System.out.println("Sentiment Prediction: " + sent);
+        return sent;
 
     }
 
@@ -118,6 +128,10 @@ public class Sentiment {
             }
         }
         return lines.toArray(new String[lines.size()]);
+    }
+
+    public double getScore() {
+        return rate;
     }
 
 }

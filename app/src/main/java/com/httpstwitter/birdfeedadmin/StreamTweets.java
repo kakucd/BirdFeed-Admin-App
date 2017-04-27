@@ -23,7 +23,11 @@ import java.nio.charset.Charset;
 
 public class StreamTweets {
 
-    public static void main(String[] args) throws Exception {
+    public StreamTweets() throws Exception {
+        stream();
+    }
+
+    public void stream() throws Exception {
         // Twitter4J
         Configuration twitterConf = ConfigurationContext.getInstance();
         Authorization twitterAuth = AuthorizationFactory.getInstance(twitterConf);
@@ -40,7 +44,6 @@ public class StreamTweets {
         JavaStreamingContext sc = new JavaStreamingContext(sparkConf, new Duration(5000));
 
         //DataFrame for old tweets
-        DataFrame oldTweets = null;
         JavaSparkContext jsc = sc.sparkContext();
         final SQLContext[] sqlContext = {new SQLContext(jsc)};
 
