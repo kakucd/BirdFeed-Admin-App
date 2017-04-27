@@ -23,7 +23,11 @@ import java.nio.charset.Charset;
 
 public class StreamTweets {
 
-    public static void main(String[] args) throws Exception {
+    public StreamTweets() throws Exception {
+        stream();
+    }
+
+    public void stream() throws Exception {
         // Twitter4J
         Configuration twitterConf = ConfigurationContext.getInstance();
         Authorization twitterAuth = AuthorizationFactory.getInstance(twitterConf);
@@ -54,7 +58,7 @@ public class StreamTweets {
         //create a DStream of tweets
         String[] filters = { "@mattsinthemkt", "@IvarsClam", "@pikeplchowder", "@BaccoCafeSea", "@RadiatorWhiskey",
                                 "@CuttersCrab", "@japonessa", "@PinkDoorSeattle", "@CrepedeFrance1", "@place_pigalle",
-                                "Kastoori Grill", "kastoori grill", "@canlis", "@MetGrill", "@thewalrusbar",
+                                "@canlis", "@MetGrill", "@thewalrusbar",
                                 "@dahlialounge", "@RN74Seattle", "@ElGauchoSteak", "@Spinasse", "@ILBistroSeattle",
                                 "@PalisadeSea", "@SaltySeattle", "@Andaluca", "@RockCreekSea", "@salareseattle",
                                 "@AOTTSeattle", "@AlturaSeattle", "@GoldfinchTavern", "@raysboathouse", "@SeriousPieDT",

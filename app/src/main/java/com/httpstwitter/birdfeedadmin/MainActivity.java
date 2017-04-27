@@ -219,7 +219,8 @@ public class MainActivity extends AppCompatActivity {
      * snackbar message should indicate when the streaming function has either failed or
      * successfully completed.
      */
-    public void stream(View view) {
+    public void stream(View view) throws Exception {
+        new StreamTweets();
 
         Snackbar.make(view, "No Action Set", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();

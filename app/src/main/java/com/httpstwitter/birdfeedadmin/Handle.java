@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.Scanner;
 /**
  * Created by Casey on 4/22/17.
@@ -25,11 +26,13 @@ public class Handle {
         score = 0;
     }
 
-    public Handle(String u, String t, String d) {
+    public Handle(String u, String t, String d) throws IOException {
         tweet = t;
         user = EncodeString(u);
         date = d;
         name = parseTweet();
+        score = (new Sentiment(tweet)).getScore();
+        System.out.println("Score: "+score);
     }
 
     public String parseTweet() {
