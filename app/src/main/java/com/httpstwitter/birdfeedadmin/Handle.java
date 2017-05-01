@@ -9,12 +9,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.Scanner;
+
+import android.content.Context;
 /**
  * Created by Casey on 4/22/17.
  */
 
 public class Handle {
     String tweet, name, handle, user, date;
+    Context context;
     double score;
 
     public Handle() {
@@ -26,12 +29,13 @@ public class Handle {
         score = 0;
     }
 
-    public Handle(String u, String t, String d) throws IOException {
+    public Handle(String u, String t, String d, Context c) throws IOException {
         tweet = t;
         user = EncodeString(u);
         date = d;
         name = parseTweet();
-        score = (new Sentiment(tweet)).getScore();
+        context = c;
+        score = (new Sentiment(tweet, context)).getScore();
         System.out.println("Score: "+score);
     }
 

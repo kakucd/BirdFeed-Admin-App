@@ -1,5 +1,8 @@
 package com.httpstwitter.birdfeedadmin;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+
 import com.google.common.io.Files;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -23,10 +26,12 @@ import java.nio.charset.Charset;
 
 public class StreamTweets {
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public StreamTweets() throws Exception {
         stream();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void stream() throws Exception {
         // Twitter4J
         Configuration twitterConf = ConfigurationContext.getInstance();
@@ -50,7 +55,7 @@ public class StreamTweets {
 
 
         // output file, save streamed twitter data as a json file
-        final File outputFile = new File("restaurant.json");
+        final File outputFile = new File("/Users/Emily/AndroidStudioProjects/BirdFeed-Admin-App/app/src/main/assets/crestaurant.json");
 
         //create a DStream of tweets
         String[] filters = { "@mattsinthemkt", "@IvarsClam", "@pikeplchowder", "@BaccoCafeSea", "@RadiatorWhiskey",

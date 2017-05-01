@@ -28,33 +28,53 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import android.content.Context;
+
 
 public class Sentiment {
 
     static HashMap<String, Integer> map = new HashMap<>();
     double rate;
+    Context context;
 
-    public Sentiment(String str) throws IOException {
+    public Sentiment(String str, Context c) throws IOException {
+        context = c;
         rate = scoring(str);
     }
 
     public double scoring(String str) throws IOException {
 
-        SparkConf sparkConf = new SparkConf()
-                .setAppName("Tweets Android")
-                .setMaster("local[2]");
-        SparkContext sc = new SparkContext(sparkConf);
+        //SparkConf sparkConf = new SparkConf()
+          //      .setAppName("Tweets Android")
+            //    .setMaster("local[2]");
+        //SparkContext sc = new SparkContext(sparkConf);
 
-        SQLContext sqlContext = new SQLContext(sc);
+        //SQLContext sqlContext = new SQLContext(sc);
 
         //map of dataset files
-        Map<String, File> trainingFiles = new HashMap<>();
-        trainingFiles.put("Negative", new File("negative.txt"));
-        trainingFiles.put("Positive", new File("positive.txt"));
+        Map<String, InputStream> trainingFiles = new HashMap<>();
+
+        InputStream nis = null;
+        InputStream pis = null;
+
+        try {
+            nis = context.getAssets().open("negative.txt");
+            pis = context.getAssets().open("positive.txt");
+        } catch(IOException ex) {
+            ex.printStackTrace();
+            System.out.println("Exception Caught: " + ex);
+        }
+
+        trainingFiles.put("Negative", nis);
+        trainingFiles.put("Positive", pis);
 
         //loading examples in memory
         Map<String, String[]> trainingExamples = new HashMap<>();
-        for(Map.Entry<String, File> entry : trainingFiles.entrySet()) {
+        for(Map.Entry<String, InputStream> entry : trainingFiles.entrySet()) {
             trainingExamples.put(entry.getKey(), readLines(entry.getValue()));
         }
 
@@ -109,24 +129,37 @@ public class Sentiment {
      * Reads the all lines from a file and places it a String array. In each
      * record in the String array we store a training example text.
      *
-     * @param file
+     *
      * @return
      * @throws IOException
      */
 
     @SuppressLint("NewApi")
-    public static String[] readLines(File file) throws IOException {
+    public static String[] readLines(InputStream is) throws IOException {
 
 //        Scanner fileReader = new Scanner(file);
-        List<String> lines;
-        try (Scanner reader = new Scanner(file)) {
-            lines = new ArrayList<>();
-            String line = reader.nextLine();
-            while (reader.hasNextLine()) {
-                lines.add(line);
-                line = reader.nextLine();
+        List<String> lines = new ArrayList<>();
+        String line = "";
+        //try (Scanner reader = new Scanner(file)) {
+          //  lines = new ArrayList<>();
+            //String line = reader.nextLine();
+            //while (reader.hasNextLine()) {
+              //  lines.add(line);
+                //line = reader.nextLine();
+           // }
+        //}
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            if (is != null) {
+                while ((line = reader.readLine()) != null) {
+                    lines.add(line);
+                }
             }
+        } finally {
+            try { is.close(); } catch (Throwable ignore) {}
         }
+
         return lines.toArray(new String[lines.size()]);
     }
 

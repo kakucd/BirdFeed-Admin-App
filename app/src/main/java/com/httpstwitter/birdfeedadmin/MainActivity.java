@@ -1,6 +1,8 @@
 package com.httpstwitter.birdfeedadmin;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,6 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+
+import android.content.Context;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -115,9 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             assert reader != null;
-            reader.beginObject();
-            reader.nextName();
             reader.beginArray();
+            //reader.beginObject();
             while (reader.hasNext() && reader.peek() != JsonToken.END_DOCUMENT) {
                 readTweet(reader);
             }
@@ -149,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         reader.endObject();
-        handles.add(new Handle(user, text, date));
+        Context context = this.getApplicationContext();
+        handles.add(new Handle(user, text, date, context));
     }
 
     /*
@@ -190,6 +194,19 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
+
+            final DatabaseReference rate = mdatabase.getReference("scores/" + restaurant);
+            rate.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    rate.setValue(score);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         }
 
         Snackbar.make(view, "Database Successfully Updated!", Snackbar.LENGTH_LONG)
@@ -201,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
      * snackbar message should indicate when the streaming function has either failed or
      * successfully completed.
      */
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void stream(View view) throws Exception {
         new StreamTweets();
 
