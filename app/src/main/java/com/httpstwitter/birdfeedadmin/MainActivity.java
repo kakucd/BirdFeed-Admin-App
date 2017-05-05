@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 name = reader.nextName();
             } catch(Exception e) {
+                System.out.println("Exception: "+e);
                 break;
             }
             if (name.equals("user")) {
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
      * has failed.
      */
     public void push(View view) {
+        System.out.println("Handles: "+handles.size());
         for(int i = 0; i < handles.size(); i++) {
             Handle h = handles.get(i);
             if (h.getName() == null) {
@@ -176,11 +178,9 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < handles.size(); i++) {
             Handle t = handles.get(i);
             final String text = t.getTweet();
-            final String user = t.getUser();
             final String restaurant = t.getName();
             final double score = t.getScore();
             final String date = t.getDate();
-
 
             final DatabaseReference ref = mdatabase.getReference("tweets/" + restaurant + "/" + date);
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -195,11 +195,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            final DatabaseReference rate = mdatabase.getReference("scores/" + restaurant);
-            rate.addListenerForSingleValueEvent(new ValueEventListener() {
+            final DatabaseReference src = mdatabase.getReference("restaurants/" + restaurant + "/score");
+            src.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    rate.setValue(score);
+                    System.out.println(restaurant+" score: "+score);
+                    src.setValue(score);
                 }
 
                 @Override
@@ -208,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        handles.clear();
 
         Snackbar.make(view, "Database Successfully Updated!", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();

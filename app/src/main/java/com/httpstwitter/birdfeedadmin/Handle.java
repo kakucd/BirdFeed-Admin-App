@@ -1,6 +1,5 @@
 package com.httpstwitter.birdfeedadmin;
 
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -11,13 +10,12 @@ import java.io.IOException;
 import java.util.Scanner;
 
 import android.content.Context;
+
 /**
  * Created by Casey on 4/22/17.
  */
 
-public class Handle {
-    String tweet, name, handle, user, date;
-    Context context;
+public class Handle {String tweet, name, handle, user, date;
     double score;
 
     public Handle() {
@@ -30,22 +28,20 @@ public class Handle {
     }
 
     public Handle(String u, String t, String d, Context c) throws IOException {
+
         tweet = t;
         user = EncodeString(u);
+        name = parseTweet(c);
         date = d;
-        name = parseTweet();
-        context = c;
-        score = (new Sentiment(tweet, context)).getScore();
-        System.out.println("Score: "+score);
     }
 
-    public String parseTweet() {
+
+    public String parseTweet(Context c) throws IOException{
         Scanner text = new Scanner(EncodeString(tweet));
         String temp;
 
         while(text.hasNext()) {
             temp = text.next();
-            //System.out.println("Temp: "+temp);
 
             FirebaseDatabase db = FirebaseDatabase.getInstance();
             DatabaseReference ref = db.getReference("handle/");
@@ -57,9 +53,12 @@ public class Handle {
                     if (dataSnapshot.hasChild(finalTemp)) {
                         handle = finalTemp;
                         //System.out.println("If: "+finalTemp);
-                        name = getRestaurant(handle);
+                        try {
+                            name = getRestaurant(handle, c);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     } else {
-                        //System.out.println("Else: "+finalTemp);
                     }
                 }
 
@@ -81,7 +80,7 @@ public class Handle {
         return string;
     }
 
-    public String getRestaurant(String handle) {
+    public String getRestaurant(String handle, Context c) throws IOException {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference ref = db.getReference("handle/"+handle);
 
@@ -89,7 +88,12 @@ public class Handle {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 name = (String) dataSnapshot.getValue();
-                //System.out.println("name: "+name);
+                try {
+                    score = (new Sentiment(tweet, c, name)).getScore();
+                    oldScore();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -97,6 +101,7 @@ public class Handle {
                 name = null;
             }
         });
+
         return name;
     }
 
@@ -134,5 +139,24 @@ public class Handle {
 
     public String getDate() {
         return date;
+    }
+
+    public void oldScore() {
+        FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
+        DatabaseReference query = mdatabase.getReference("restaurants/"+name+"/score");
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //System.out.println("Restaurant: "+name+" Old Score: "+dataSnapshot.getValue());
+                score += (double) dataSnapshot.getValue();
+                System.out.println(name+" : "+score);
+                //System.out.println(name+" score: "+rate);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

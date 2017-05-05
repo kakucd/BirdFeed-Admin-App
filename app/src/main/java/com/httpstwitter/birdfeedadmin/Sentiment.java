@@ -5,59 +5,45 @@ package com.httpstwitter.birdfeedadmin;
  * Edited by Rebecca on 11/28/16.
  */
 
-//https://www.tutorialspoint.com/spark_sql/spark_sql_useful_resources.htm
-//https://spark.apache.org/docs/1.5.1/api/java/org/apache/spark/sql/DataFrame.html
-
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.AsyncTask;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.httpstwitter.birdfeedadmin.dataobjects.NaiveBayesKnowledgeBase;
 
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.*;
-
-import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
-import org.apache.spark.api.java.JavaSparkContext;
-import org.apache.spark.sql.DataFrame;
-import org.apache.spark.sql.SQLContext;
-
-import java.util.Scanner;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.BufferedReader;
 import java.io.InputStreamReader;
-
-import android.content.Context;
+import java.io.InputStream;
 
 
 public class Sentiment {
 
-    static HashMap<String, Integer> map = new HashMap<>();
-    double rate;
+    FirebaseDatabase mdatabase;
+    double rate, oldScore;
     Context context;
+    String name;
 
-    public Sentiment(String str, Context c) throws IOException {
+    public Sentiment(String str, Context c, String n) throws IOException {
+        rate = 0;
+        name = n;
         context = c;
-        rate = scoring(str);
+        rate += scoring(str);
+        System.out.println(name+" "+rate);
+        //oldScore();
     }
 
     public double scoring(String str) throws IOException {
 
-        //SparkConf sparkConf = new SparkConf()
-          //      .setAppName("Tweets Android")
-            //    .setMaster("local[2]");
-        //SparkContext sc = new SparkContext(sparkConf);
-
-        //SQLContext sqlContext = new SQLContext(sc);
-
         //map of dataset files
         Map<String, InputStream> trainingFiles = new HashMap<>();
-
         InputStream nis = null;
         InputStream pis = null;
 
@@ -91,35 +77,9 @@ public class Sentiment {
 
         //Use classifier
         nb = new NaiveBayes(knowledgeBase);
-
-
-        //try {
-           /* DataFrame tweets = sqlContext.read().json("restaurant.json"); // load old tweets into a DataFrame
-            tweets.registerTempTable("tweetDF");
-
-            DataFrame tweetText = sqlContext.sql("SELECT text FROM tweetDF");
-            long numTweets = tweetText.count();
-            System.out.println(numTweets);
-
-            //go through all tweets and analyze the sentiment of each
-            for(int i = 0; i<numTweets; i++) {
-
-                String tweet = tweetText.take((int) numTweets)[i].toString();
-                tweet = tweet.substring(1, tweet.length() - 1);
-                System.out.println(tweet);
-
-                Double sent = nb.predict(str);
-
-                System.out.println("Sentiment Prediction: " + sent);
-                return sent;
-            }
-
-        } catch (Exception e){
-            System.out.println(e);
-        }*/
         Double sent = nb.predict(str);
 
-        System.out.println("Sentiment Prediction: " + sent);
+        //System.out.println("Name: "+name+" Sentiment: " + sent);
         return sent;
 
     }
@@ -133,21 +93,11 @@ public class Sentiment {
      * @return
      * @throws IOException
      */
-
     @SuppressLint("NewApi")
     public static String[] readLines(InputStream is) throws IOException {
 
-//        Scanner fileReader = new Scanner(file);
         List<String> lines = new ArrayList<>();
         String line = "";
-        //try (Scanner reader = new Scanner(file)) {
-          //  lines = new ArrayList<>();
-            //String line = reader.nextLine();
-            //while (reader.hasNextLine()) {
-              //  lines.add(line);
-                //line = reader.nextLine();
-           // }
-        //}
 
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -165,6 +115,51 @@ public class Sentiment {
 
     public double getScore() {
         return rate;
+    }
+
+    public void oldScore() {
+        FirebaseDatabase mdatabase = FirebaseDatabase.getInstance();
+        DatabaseReference query = mdatabase.getReference("restaurants/"+name+"/score");
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //System.out.println("Restaurant: "+name+" Old Score: "+dataSnapshot.getValue());
+                rate += (double) dataSnapshot.getValue();
+                System.out.println(name+" : "+rate);
+                //System.out.println(name+" score: "+rate);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private class getOldScore extends AsyncTask<Void, Void, ValueEventListener> {
+
+        @Override
+        protected ValueEventListener doInBackground(Void... voids) {
+            ValueEventListener sent = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    rate += (double) dataSnapshot.getValue();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            };
+            //System.out.println(name+" Score: "+sent);
+            return sent;
+        }
+
+        @Override
+        protected void onPostExecute(ValueEventListener jpg) {
+            DatabaseReference picture = mdatabase.getReference("restaurants/"+name+"/score");
+            picture.addListenerForSingleValueEvent(jpg);
+        }
     }
 
 }
